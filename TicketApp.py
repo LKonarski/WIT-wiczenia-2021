@@ -1,21 +1,29 @@
-developers = {}
-users = {}
-maps = {}
-wallet = {}
-storage = {}
+from multiprocessing import connection
+import sqlite3
 
 class Developer():
     def register_developer():
         login = input('Wprowadź swój login: ')
         password = input('Wprowadź swoje hasło: ')
-        developers[login] = password
-        print(developers)
+        connection = sqlite3.connect('baza_danych.db')
+        cursor = connection.cursor()
+        cursor.execute('CREATE TABLE IF NOT EXISTS developers (login, password)')
+        cursor.execute('INSERT INTO developers VALUES (?, ?)', (login, password))
+        connection.commit()
+        connection.close()
+        print(login, password)
 
     def update_maps():
         region = input('Wprowadź nazwę nowego regionu: ')
         size = int(input('Wprowadź rozmiar danego obszaru: '))
-        maps[region] = size
-        print(maps)
+        connection = sqlite3.connect('baza_danych.db')
+        cursor = connection.cursor()
+        cursor.execute('CREATE TABLE IF NOT EXISTS maps (region, size)')
+        cursor.execute('INSERT INTO maps VALUES (?, ?)', (region, size))
+        connection.commit()
+        connection.close()
+        print(region, size)
+
 
     def user_help():
         print('Witam z tej strony asystent, zapoznałem się z problemem, pracujemy nad tym!')
@@ -24,8 +32,14 @@ class User():
     def register_user():
         login = input('Wprowadź swój login: ')
         password = input('Wprowadź swoje hasło: ')
-        users[login] = password
-        print(users)
+        connection = sqlite3.connect('baza_danych.db')
+        cursor = connection.cursor()
+        cursor.execute('CREATE TABLE IF NOT EXISTS users (login, password)')
+        cursor.execute('INSERT INTO users VALUES (?, ?)', (login, password))
+        connection.commit()
+        connection.close()
+        print(login, password)
+
 
     def get_wallet():
         print('''Wybierz czynność:
@@ -36,11 +50,19 @@ class User():
         if option == 1:
             money = input('Wprowadź nazwę waluty: ')
             amount = int(input('Wprowadź ilość pieniędzy jaką chcesz przelać: '))
-            wallet[money] = amount
-            print(wallet) 
+            connection = sqlite3.connect('baza_danych.db')
+            cursor = connection.cursor()
+            cursor.execute('CREATE TABLE IF NOT EXISTS wallet (money, amount)')
+            cursor.execute('INSERT INTO wallet VALUES (?, ?)', (money, amount))
+            connection.commit()
+            connection.close()
+            print(money, amount)
 
         if option == 2:
-            print(wallet)   
+            connection = sqlite3.connect('baza_danych.db')
+            cursor = connection.cursor()
+            queryset = cursor.execute('SELECT * FROM wallet')
+            print(queryset.fetchall())
 
     def get_tickets():
         print('''Wybierz rodzaj biletu
@@ -53,34 +75,58 @@ class User():
             print('Kupujesz bilet na autobus, aktualny cennik to 1$ za 10 minut')
             time = int(input('Wprowadź ile czasu w minutach będziesz podróżował: '))
             result = time/10
+            connection = sqlite3.connect('baza_danych.db')
+            cursor = connection.cursor()
+            cursor.execute('CREATE TABLE IF NOT EXISTS tickets (time, result)')
+            cursor.execute('INSERT INTO tickets VALUES (?, ?)', (time, result))
+            connection.commit()
+            connection.close()
             print('Koszt przejazdu wynosi: ', result,'$')
-            storage[time] = result
         
         if option == 2:
             print('Kupujesz bilet na pociag, aktualny cennik to 5$ za 60 minut')
             time = int(input('Wprowadź ile czasu w minutach będziesz podróżował: '))
             result = time/60*5
+            connection = sqlite3.connect('baza_danych.db')
+            cursor = connection.cursor()
+            cursor.execute('CREATE TABLE IF NOT EXISTS tickets (time, result)')
+            cursor.execute('INSERT INTO tickets VALUES (?, ?)', (time, result))
+            connection.commit()
+            connection.close()
             print('Koszt przejazdu wynosi: ', result,'$')
-            storage[time] = result
+            
 
         if option == 3:
             print('Kupujesz bilet na samolot, aktualny cennik to 50$ za 60 minut')
             time = int(input('Wprowadź ile czasu w minutach będziesz podróżował: '))
             result = time/60*50
+            connection = sqlite3.connect('baza_danych.db')
+            cursor = connection.cursor()
+            cursor.execute('CREATE TABLE IF NOT EXISTS tickets (time, result)')
+            cursor.execute('INSERT INTO tickets VALUES (?, ?)', (time, result))
+            connection.commit()
+            connection.close()
             print('Koszt przejazdu wynosi: ', result,'$')
-            storage[time] = result
+            
 
     def show_tickets():
-        print(storage)
+        connection = sqlite3.connect('baza_danych.db')
+        cursor = connection.cursor()
+        queryset = cursor.execute('SELECT * FROM tickets')
+        print(queryset.fetchall())
 
     def return_tickets():
-        time = input('Wprowadź rodzaj biletu ze względu na czas: ')
-        if storage.get(time):
-            storage.pop(time)
-            print(storage)
+        connection = sqlite3.connect('baza_danych.db')
+        cursor = connection.cursor()
+        queryset = cursor.execute('SELECT * FROM tickets')
+        print(queryset.fetchall())       
+
     
     def check_maps():
-       print(maps)
+        connection = sqlite3.connect('baza_danych.db')
+        cursor = connection.cursor()
+        queryset = cursor.execute('SELECT * FROM maps')
+        print(queryset.fetchall())
 
     def contact():
         x = input('Wprowadź swój problem: ')
@@ -96,7 +142,6 @@ option = int(input('Wybierz opcje: '))
 if option == 1:
     print('Logowanie na konto klienta')
     User.register_user()
-    print('Zalogowano jako: ', users)
     
     while True:
         print('''Opcje do wyboru:
@@ -127,8 +172,7 @@ if option == 1:
 
 if option == 2:
     print('Logowanie na konto jako deweloper')
-    Developer.register_developer()
-    print('Zalogowano jako: ', developers)
+
 
     while True:
         print('''Opcje do wyboru:
